@@ -1,0 +1,28 @@
+---
+galaxy_info:
+  author: Calogero Lo Leggio (kalos)
+  description: advanced authentication pattern
+  company: LibreIT
+  license: GPLv3
+  min_ansible_version: 1.4
+
+  platforms:
+  - name: Ubuntu
+    versions:
+    - lucid
+    - precise
+    - quantal
+    - raring
+    - saucy
+    - trusty
+
+  - name: Debian
+    versions:
+    - squeeze
+    - wheezy
+
+  categories:
+  - system
+  - authentication
+
+dependencies: []

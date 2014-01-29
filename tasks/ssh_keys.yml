@@ -1,0 +1,38 @@
+# - create ssh key for each host
+# - add a local ssh client config
+# - add ssh keys in host
+# 
+#
+# Copyright (C) 2014 Calogero Lo Leggio <kalos@nerdrug.org>
+#
+# This part of software is released under the terms of the GPLv3 license.
+#
+---
+- name: create ssh config directory {{ auth_local_conf_dir }}
+  local_action: file path={{ auth_local_conf_dir }} state=directory
+  sudo: no
+
+- name: create host ( {{ inventory_hostname }} ) ssh key without password
+  local_action: >
+    user name={{ auth_local_user }}
+    generate_ssh_key=yes ssh_key_comment=
+    ssh_key_file={{ auth_local_ssh_dir }}/{{ inventory_hostname }}
+  sudo: no
+
+- name: create client ssh config
+  local_action: >
+    template src=ssh_config.j2
+    dest={{ auth_local_conf_dir }}/{{ inventory_hostname }}
+  sudo: no
+
+- name: assemble local ssh client configs
+  local_action: >
+    assemble remote_src=False src={{ auth_local_conf_dir }}
+    dest={{ auth_local_conf }}
+  sudo: no
+
+- name: add host-based auth key for {{ auth_remote_ssh_user }}
+  authorized_key: >
+    user={{ item.name }}
+    key="{{ lookup('file', auth_local_ssh_dir + '/' + inventory_hostname + '.pub') }}"
+  with_items: auth_sysadmin_users

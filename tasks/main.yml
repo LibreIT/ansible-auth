@@ -1,0 +1,47 @@
+# Copyright (C) 2014 Calogero Lo Leggio <kalos@nerdrug.org>
+#
+# This part of software is released under the terms of the GPLv3 license.
+#
+---
+- name: install sudo
+  apt: pkg=sudo state=installed
+
+- name: create {{ auth_sysadmin_group }} group
+  group: name={{ auth_sysadmin_group }} gid={{ auth_sysadmin_gid }}
+
+- name: create admin user(s)
+  user: >
+    name={{ item.name }} password={{ item.pass }} uid={{ item.uid }}
+    groups={{ auth_sysadmin_group }} append=yes
+  with_items: auth_sysadmin_users
+
+- name: create lifesaver {{ auth_lifesaver_user }} user
+  user: >
+    name={{ auth_lifesaver_user }} password={{ auth_lifesaver_pass }}
+    uid={{ auth_lifesaver_uid }} shell={{ auth_lifesaver_shell }}
+
+- name: create sudoers file for sysadmin group {{ auth_sysadmin_group }}
+  template: >
+    src=sysadmin_group.j2 dest=/etc/sudoers.d/sysadmin_group
+    owner=root group=root mode=0440 validate='visudo -c -f %s'
+
+- name: create sudoers file for lifesaver user
+  template: >
+    src=lifesaver_user.j2 dest=/etc/sudoers.d/lifesaver_user
+    owner=root group=root mode=0440 validate='visudo -c -f %s'
+
+- include: ssh_keys.yml tags=ssh-keys
+
+- pause: prompt="press ENTER if you are sure to disable root local login"
+  when: auth_disable_root
+
+- name: create sshd_config
+  template: >
+    src=sshd_config.j2 dest=/etc/ssh/sshd_config
+    owner=root group=root mode=0644
+  notify: restart ssh server
+  tags: sshd
+
+- name: disable root local login (unix password)
+  command: "passwd -l root"
+  when: auth_disable_root

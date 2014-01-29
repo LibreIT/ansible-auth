@@ -1,0 +1,3 @@
+# permit {{ auth_lifesaver_user }} to become one of {{ auth_sysadmin_group }} users, using the user's unix password 
+Defaults:{{ auth_lifesaver_user }} targetpw
+{{ auth_lifesaver_user }} ALL=(%{{ auth_sysadmin_group }}) PASSWD: SETENV: ALL
