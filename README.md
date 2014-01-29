@@ -3,34 +3,34 @@ ansible auth role
 
 This role implements the following authentication pattern:
 
-- users
-  - root account can be disabled in ssh and local login (highly recommended)
-  - users in the "admins" group can become root and can have unix password
-  - the "lifesaver" user can become an user of "admins" group (optional)
+      - users
+        - root account can be disabled in ssh and local login (highly recommended)
+        - users in the "admins" group can become root and can have unix password
+        - the "lifesaver" user can become an user of "admins" group (optional)
 
-- auth
-  - admin users use only ssh key (with or without password)
-  - "lifesaver" use a very strong password
-  - "lifesaver" can become one of the admin users using the user's unix password 
+      - auth
+        - admin users use only ssh key (with or without password)
+        - "lifesaver" use a very strong password
+        - "lifesaver" can become one of the admin users using the user's unix password
 
-- sshd config
-  - disable root login
-  - login only with ssh keys (except for "lifesaver" user)
-  - change sshd port (optional)  
+      - sshd config
+        - disable root login
+        - login only with ssh keys (except for "lifesaver" user)
+        - change sshd port (optional)
 
 
 My use cases:
-- normal case (with my workstation)
-  - login with a two-factor authentication system (I use yubikey)
-  - ssh keys (without password) are encripted with ecryptfs
 
-- without encripted partition
-  - ssh keys with password, stored elsewhere (smartphone, etc)
+      - normal case (with my workstation)
+        - login with a two-factor authentication system (I use yubikey)
+        - ssh keys (without password) are encripted with ecryptfs
 
-- only with a ssh client
-  - connect to "lifesaver" user with ssh
-  - obtain admin rights with "sudo -i -u **user-admin**" using a unix user-admin password
+      - without encripted partition
+        - ssh keys with password, stored elsewhere (smartphone, etc)
 
+      - only with a ssh client
+        - connect to "lifesaver" user with ssh
+        - obtain admin rights with "sudo -i -u **user-admin**" using a unix user-admin password
 
 Role Variables
 --------------
