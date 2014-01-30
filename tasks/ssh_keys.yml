@@ -36,3 +36,4 @@
     user={{ item.name }}
     key="{{ lookup('file', auth_local_ssh_dir + '/' + inventory_hostname + '.pub') }}"
   with_items: auth_sysadmin_users
+  tags: ssh-copy-key
