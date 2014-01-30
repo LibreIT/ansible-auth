@@ -72,9 +72,55 @@ Role Variables
 Examples
 ========
 
+1) Simple use, with all features.
+
     - hosts: example
       roles:
          - { role: kalos.auth }
+
+2) Create users with "admins" group.
+
+    - hosts: example
+
+      roles:
+        - { role: kalos.auth, auth_sysadmin_users:
+                              [{name: kalos, pass: pass1, uid: 1010},
+                               {name: elisa, pass: pass2, uid: 1011}],
+                              auth_sysadmin_group: admins,
+                              auth_sysadmin_gid: 1234 }
+
+Exec this playbook with tags:
+
+    ansible-playbook playbook.yml --tags users
+
+
+3) Create "lifesaver" user.
+
+    - hosts: example
+
+      roles:
+        - { role: kalos.auth, auth_lifesaver_user: very_special_user,
+                              auth_lifesaver_pass: very_strong_pass,
+                              auth_lifesaver_uid: 3000,
+                              auth_sysadmin_group: admins}
+
+Exec this playbook with tags:
+
+    ansible-playbook playbook.yml --tags lifesaver
+
+
+4) Create local ssh configuration and copy ssh-key to remote host.
+
+    - hosts: example
+
+      roles:
+        - { role: kalos.auth, auth_remote_ssh_user: kalos-admin,
+                              auth_local_user: kalos,
+                              auth_local_home: "/home/{{ auth_local_user }}" }
+
+Exec this playbook with tags:
+
+    ansible-playbook playbook.yml --tags ssh-key
 
 License
 -------
