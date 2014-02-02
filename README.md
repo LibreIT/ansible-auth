@@ -56,14 +56,8 @@ Role Variables
       # local user name (useful to create ssh keys)
       auth_local_user: calogero-local
 
-      # local user home directory
-      auth_local_home: /home/calogero-local
-
       # local user ssh directory
-      auth_local_ssh_dir: "{{ auth_local_home }}/.ssh"
-
-      # local user ssh config file
-      auth_local_conf: "{{ auth_local_ssh_dir }}/config"
+      auth_local_ssh_dir: /home/calogero-local/.ssh
 
       # local user ssh config per host
       auth_local_conf_dir: "{{ auth_local_ssh_dir }}/.confs"
@@ -115,8 +109,7 @@ Exec this playbook with tags:
 
       roles:
         - { role: kalos.auth, auth_remote_ssh_user: kalos-admin,
-                              auth_local_user: kalos,
-                              auth_local_home: "/home/{{ auth_local_user }}" }
+                              auth_local_user: kalos }
 
 Exec this playbook with tags:
 

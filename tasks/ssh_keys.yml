@@ -28,7 +28,7 @@
 - name: assemble local ssh client configs
   local_action: >
     assemble remote_src=False src={{ auth_local_conf_dir }}
-    dest={{ auth_local_conf }}
+    dest="{{ auth_local_ssh_dir }}/config"
   sudo: no
 
 - name: add host-based auth key for {{ auth_remote_ssh_user }}
