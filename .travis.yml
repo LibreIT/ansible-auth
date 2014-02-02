@@ -9,4 +9,4 @@ install:
 script:
   - echo localhost > inventory
   - ansible-playbook --syntax-check -i inventory playbook.yml
-  - ansible-playbook -i inventory --connection=local -u root --sudo -vvvv playbook.yml 
+  - ansible-playbook -i inventory --connection=local -u root --sudo --skip-tags ssh-key -vvvv playbook.yml 
