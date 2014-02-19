@@ -54,7 +54,8 @@ Role Variables
       auth_lifesaver_shell: /bin/rbash  
       
       auth_sshd_port: 22              # ssh daemon port (default: 22)  
-      
+      auth_sshd_pass_auth: 'yes'        # ssh daemon allow password authentication (default: 'yes')
+
       # local user name (useful to create ssh keys)
       auth_local_user: calogero-local
 

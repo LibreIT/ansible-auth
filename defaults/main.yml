@@ -23,6 +23,7 @@ auth_lifesaver_uid: 3000
 auth_lifesaver_shell: /bin/rbash
 
 auth_sshd_port: 22
+auth_sshd_pass_auth: 'yes'
 
 ### ssh keys
 auth_local_user: calogero-local

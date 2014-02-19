@@ -9,7 +9,7 @@ PermitRootLogin no
 PermitRootLogin yes
 {% endif %}
 
-PasswordAuthentication no
+PasswordAuthentication {{ auth_sshd_pass_auth }}
 PermitEmptyPasswords no
 
 LoginGraceTime 20
@@ -65,7 +65,7 @@ SyslogFacility AUTH
 LogLevel INFO
 
 
-{% if auth_lifesaver_user is defined %}
+{% if auth_lifesaver_user %}
 ### login with password only for {{ auth_lifesaver_user }}
 Match User {{ auth_lifesaver_user }}
   PasswordAuthentication yes
