@@ -33,14 +33,14 @@
   user: >
     name={{ auth_lifesaver_user }} password={{ auth_lifesaver_pass }}
     uid={{ auth_lifesaver_uid }} shell={{ auth_lifesaver_shell }}
-  when: auth_lifesaver_user
+  when: auth_lifesaver
   tags: lifesaver
 
 - name: create sudoers file for lifesaver user
   template: >
     src=lifesaver_user.j2 dest=/etc/sudoers.d/lifesaver_user
     owner=root group=root mode=0440 validate='visudo -c -f %s'
-  when: auth_lifesaver_user
+  when: auth_lifesaver
   tags: 
     - lifesaver
     - sudo

@@ -65,7 +65,7 @@ SyslogFacility AUTH
 LogLevel INFO
 
 
-{% if auth_lifesaver_user %}
+{% if auth_lifesaver %}
 ### login with password only for {{ auth_lifesaver_user }}
 Match User {{ auth_lifesaver_user }}
   PasswordAuthentication yes

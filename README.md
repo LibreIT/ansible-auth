@@ -48,13 +48,14 @@ Role Variables
       auth_sysadmin_group: admins     # administration group name
       auth_sysadmin_gid: 2000         # administration group GID  
       
+      auth_lifesaver: yes             # create lifesaver user
       auth_lifesaver_user: lifesaver  # name of "lifesaver" user
       auth_lifesaver_pass: PASSWORD
       auth_lifesaver_uid: 3000
       auth_lifesaver_shell: /bin/rbash  
       
       auth_sshd_port: 22              # ssh daemon port (default: 22)  
-      auth_sshd_pass_auth: 'yes'        # ssh daemon allow password authentication (default: 'yes')
+      auth_sshd_pass_auth: 'yes'      # ssh daemon allow password authentication (default: 'yes')
 
       # local user name (useful to create ssh keys)
       auth_local_user: calogero-local

@@ -17,6 +17,7 @@ auth_remote_ssh_user: calogero
 auth_sysadmin_group: admins
 auth_sysadmin_gid: 2000
 
+auth_lifesaver: yes
 auth_lifesaver_user: lifesaver
 auth_lifesaver_pass: $6$rounds=100000$m/M7lOATVbdrXnen$jyOdHypgKY.LV1Ob.OMxWoLMNS8w4rydAbDOtEGPFwZStEe2Qr4Pw3vpbcvJZ5G3h9GoWt2gbbZsLQYtOjiCZ.
 auth_lifesaver_uid: 3000
