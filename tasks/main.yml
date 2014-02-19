@@ -20,13 +20,6 @@
   with_items: auth_sysadmin_users
   tags: users
 
-- name: create lifesaver {{ auth_lifesaver_user }} user
-  user: >
-    name={{ auth_lifesaver_user }} password={{ auth_lifesaver_pass }}
-    uid={{ auth_lifesaver_uid }} shell={{ auth_lifesaver_shell }}
-  when: auth_lifesaver_user is defined
-  tags: lifesaver
-
 - name: create sudoers file for sysadmin group {{ auth_sysadmin_group }}
   template: >
     src=sysadmin_group.j2 dest=/etc/sudoers.d/sysadmin_group
@@ -36,18 +29,23 @@
     - group
     - sudo
 
+- name: create lifesaver {{ auth_lifesaver_user }} user
+  user: >
+    name={{ auth_lifesaver_user }} password={{ auth_lifesaver_pass }}
+    uid={{ auth_lifesaver_uid }} shell={{ auth_lifesaver_shell }}
+  when: auth_lifesaver_user
+  tags: lifesaver
+
 - name: create sudoers file for lifesaver user
   template: >
     src=lifesaver_user.j2 dest=/etc/sudoers.d/lifesaver_user
     owner=root group=root mode=0440 validate='visudo -c -f %s'
+  when: auth_lifesaver_user
   tags: 
     - lifesaver
     - sudo
 
 - include: ssh_keys.yml tags=ssh,ssh-key
-
-- pause: prompt="press ENTER if you are sure to disable root local login"
-  when: auth_disable_root
 
 - name: create sshd_config
   template: >
@@ -55,6 +53,9 @@
     owner=root group=root mode=0644
   notify: restart ssh server
   tags: ssh
+
+#- pause: prompt="press ENTER if you are sure to disable root local login"
+#  when: auth_disable_root
 
 - name: disable root local login (unix password)
   command: "passwd -l root"
