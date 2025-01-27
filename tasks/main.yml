@@ -1,62 +1,87 @@
-# Copyright (C) 2014 Calogero Lo Leggio <kalos@nerdrug.org>
-#
-# This part of software is released under the terms of the GPLv3 license.
-#
 ---
 - name: install sudo
-  apt: pkg=sudo state=installed
+  ansible.builtin.apt:
+    name: sudo
+    state: present
+    lock_timeout: 160
   tags: sudo
 
-- name: create {{ auth_sysadmin_group }} group
-  group: name={{ auth_sysadmin_group }} gid={{ auth_sysadmin_gid }}
-  tags: 
-    - group
-    - users
+- name: create admin group
+  ansible.builtin.group: 
+    name: "{{ auth_sysadmin_group }}"
+    gid: "{{ auth_sysadmin_gid }}"
+  when: (auth_sysadmin_group is defined) and (auth_sysadmin_gid is defined)
+  tags: admin_users
 
 - name: create admin user(s)
-  user: >
-    name={{ item.name }} password={{ item.pass }} uid={{ item.uid }}
-    groups={{ auth_sysadmin_group }} append=yes
-  with_items: auth_sysadmin_users
-  tags: users
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    password: "{{ item.pass|default('*') }}"
+    uid: "{{ item.uid }}"
+    shell: "{{ item.shell|default('/bin/bash') }}"
+    groups: "{{ auth_sysadmin_group }}"
+    append: true
+  loop: "{{ auth_sysadmin_users }}"
+  tags: admin_users
 
-- name: create sudoers file for sysadmin group {{ auth_sysadmin_group }}
-  template: >
-    src=sysadmin_group.j2 dest=/etc/sudoers.d/sysadmin_group
-    owner=root group=root mode=0440 validate='visudo -c -f %s'
+- name: "add ssh key(s) for sysadmin group"
+  ansible.posix.authorized_key:
+    user: "{{ item.name }}"
+    state: present
+    key: "{{ item.ssh_keys | flatten | join('\n') }}"
+    exclusive: " {{ auth_remove_other_ssh_keys|bool }}"
+  loop: "{{ auth_sysadmin_users }}"
+  when: item.ssh_keys is defined
+  tags: ssh-copy-key
+
+- name: create sudoers file for admin group
+  ansible.builtin.template:
+    src: sysadmin_group.j2
+    dest: /etc/sudoers.d/sysadmin_group
+    owner: root
+    group: root
+    mode: 0440
+    validate: /usr/sbin/visudo -cf %s
   tags: 
-    - users
-    - group
+    - admin_users
     - sudo
 
-- name: create lifesaver {{ auth_lifesaver_user }} user
-  user: >
-    name={{ auth_lifesaver_user }} password={{ auth_lifesaver_pass }}
-    uid={{ auth_lifesaver_uid }} shell={{ auth_lifesaver_shell }}
-  when: auth_lifesaver
+- name: create normal user(s)
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    password: "{{ item.pass|default('*') }}"
+    uid: "{{ item.uid }}"
+    shell: "{{ item.shell|default('/bin/bash') }}"
+    groups: "{{ item.groups|default('') }}"
+    append: true
+  with_items: "{{ auth_users }}"
+  when: auth_users is defined
+  tags: users
+
+- name: create lifesaver user
+  ansible.builtin.user:
+    name: "{{ auth_lifesaver_user }}"
+    password: "{{ auth_lifesaver_pass }}"
+    uid: "{{ auth_lifesaver_uid }}"
+    shell: "{{ auth_lifesaver_shell }}"
+  when: auth_lifesaver|default(false)
   tags: lifesaver
 
 - name: create sudoers file for lifesaver user
-  template: >
-    src=lifesaver_user.j2 dest=/etc/sudoers.d/lifesaver_user
-    owner=root group=root mode=0440 validate='visudo -c -f %s'
-  when: auth_lifesaver
+  ansible.builtin.template:
+    src: lifesaver_user.j2
+    dest: /etc/sudoers.d/lifesaver_user
+    owner: root
+    group: root
+    mode: 0440
+    validate: /usr/sbin/visudo -cf %s
+  when: auth_lifesaver|default(false)
   tags: 
     - lifesaver
     - sudo
 
-- include: ssh_keys.yml tags=ssh,ssh-key
-
-- name: create sshd_config
-  template: >
-    src=sshd_config.j2 dest=/etc/ssh/sshd_config
-    owner=root group=root mode=0644
-  notify: restart ssh server
-  tags: ssh
-
-#- pause: prompt="press ENTER if you are sure to disable root local login"
-#  when: auth_disable_root
-
 - name: disable root local login (unix password)
-  command: "passwd -l root"
-  when: auth_disable_root
+  block:
+    - ansible.builtin.pause: prompt="press ENTER if you are sure to disable root local login"
+    - ansible.builtin.command: "passwd -l root"
+  when: auth_disable_root|default(false)
