@@ -3,69 +3,58 @@
 ansible auth role
 ========
 
-This role implements the following authentication pattern:
+This role implements the following auth related functions: 
 
       - users
-        - root account can be disabled in ssh and local login (highly recommended)
+        - disable root login (highly recommended)
         - users in the "admins" group can become root and can have unix password
         - the "lifesaver" user can become an user of "admins" group (optional)
-
-      - auth
-        - admin users use only ssh key (with or without password)
-        - "lifesaver" use a very strong password
-        - "lifesaver" can become one of the admin users using the user's unix password
-
-      - sshd config
-        - disable root login
-        - login only with ssh keys (except for "lifesaver" user)
-        - change sshd port (optional)
-
 
 My use cases:
 
       - normal case (with my workstation)
-        - login with a two-factor authentication system (I use yubikey)
-        - ssh keys (without password) are encripted with ecryptfs
+        - login in my workstation with a two-factor authentication system (I use yubikey)
+        - login in servers only with ssh key (without password) in encripted fs
 
-      - without encripted partition
-        - ssh keys with password, stored elsewhere (smartphone, etc)
+      - without encripted partition (or with my smartphone)
+        - ssh key with password
 
       - only with a ssh client
-        - connect to "lifesaver" user with ssh
-        - obtain admin rights with "sudo -i -u **user-admin**" using a unix user-admin password
+        - connect to "lifesaver" user with ssh and strong password
+        - "lifesaver" can become one of the admin users using the user's unix password
+           with command "sudo -i -u **user-admin**""
 
 Role Variables
 --------------
 
-      auth_disable_root: no           # disable root local and ssh login  
+      auth_disable_root: false        # disable root login
       
-      auth_sysadmin_users:            # add this users as administratos
-        - {name: calogero, uid: 5010, pass: PASSWORD }
-        - {name: lillo, uid: 5011, pass: PASSWORD }  
-      
-      auth_remote_ssh_user: calogero  # user to use in ssh connection  
+      auth_sysadmin_users:            # add this users as administrators
+       - name: kalos
+         uid: 9871
+         pass: $6$9AMxXEeqfersx78S$j4oq0TqTBNsjzoy3tXk4hf8h2hfckAZl0KVah6C/IYPqmuDmYUNDOOtfbTJfEo8LJVRlHR7xSi/gOcVQMYQ81
+         shell: /bin/bash
+         ssh_keys:
+           - aaaa
+           - bbbb
+        - {name: calogero, uid: 5010, pass: PASSWORD, ssh_key: aaaa.. }
+        - {name: lillo, uid: 5011, pass: PASSWORD }
       
       auth_sysadmin_group: admins     # administration group name
-      auth_sysadmin_gid: 2000         # administration group GID  
+      auth_sysadmin_gid: 2000         # administration group GID
       
-      auth_lifesaver: yes             # create lifesaver user
+      auth_lifesaver: true            # create lifesaver user
       auth_lifesaver_user: lifesaver  # name of "lifesaver" user
       auth_lifesaver_pass: PASSWORD
       auth_lifesaver_uid: 3000
-      auth_lifesaver_shell: /bin/rbash  
-      
-      auth_sshd_port: 22              # ssh daemon port (default: 22)  
-      auth_sshd_pass_auth: 'yes'      # ssh daemon allow password authentication (default: 'yes')
+      auth_lifesaver_shell: /bin/rbash
 
-      # local user name (useful to create ssh keys)
-      auth_local_user: calogero-local
-
-      # local user ssh directory
-      auth_local_ssh_dir: /home/calogero-local/.ssh
-
-      # local user ssh config per host
-      auth_local_conf_dir: "{{ auth_local_ssh_dir }}/.confs"
-
+      # use willshersystems.sshd role to configure ssh
+      sshd_skip_defaults: true
+      sshd_PasswordAuthentication: no
+      sshd_match:
+        - Condition: "User lifesaver"
+          PasswordAuthentication yes
 
 Examples
 ========
@@ -74,14 +63,14 @@ Examples
 
     - hosts: example
       roles:
-         - { role: kalos.auth }
+         - { role: libreit.auth }
 
 2) Create users with "admins" group.
 
     - hosts: example
 
       roles:
-        - { role: kalos.auth, auth_sysadmin_users:
+        - { role: libreit.auth, auth_sysadmin_users:
                               [{name: kalos, pass: pass1, uid: 1010},
                                {name: elisa, pass: pass2, uid: 1011}],
                               auth_sysadmin_group: admins,
@@ -97,7 +86,8 @@ Exec this playbook with tags:
     - hosts: example
 
       roles:
-        - { role: kalos.auth, auth_lifesaver_user: very_special_user,
+        - { role: libreit.auth, auth_lifesaver: true,
+                              auth_lifesaver_user: very_special_user,
                               auth_lifesaver_pass: very_strong_pass,
                               auth_lifesaver_uid: 3000,
                               auth_sysadmin_group: admins}
@@ -106,18 +96,6 @@ Exec this playbook with tags:
 
     ansible-playbook playbook.yml --tags lifesaver
 
-
-4) Create local ssh configuration and copy ssh-key to remote host.
-
-    - hosts: example
-
-      roles:
-        - { role: kalos.auth, auth_remote_ssh_user: kalos-admin,
-                              auth_local_user: kalos }
-
-Exec this playbook with tags:
-
-    ansible-playbook playbook.yml --tags ssh-key
 
 License
 -------

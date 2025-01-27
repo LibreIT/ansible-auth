@@ -1,32 +1,9 @@
 ---
-auth_disable_root: no
+# disable root user (!!!)
+auth_disable_root: false
 
-# to generate password use:
-# python2 -c "from passlib.hash import sha512_crypt; print sha512_crypt.encrypt('PASSWORD')"
+# disable the creation of lifesaver user
+auth_lifesaver: false
 
-auth_sysadmin_users:
-  - name: calogero
-    uid: 5010
-    pass: $6$rounds=100000$6vAKVjwwlXqWKqz6$/hqwgB2pLYOXKYBHbe8kXcoSFKVubTMWlNg2nJwg.YUOj4g.89DN9.3zHxzs6nrPD3sHP.MN1t3kcmoihMGs.1
-  - name: lillo
-    uid: 5011
-    pass: $6$rounds=100000$6vAKVjwwlXqWKqz6$/hqwgB2pLYOXKYBHbe8kXcoSFKVubTMWlNg2nJwg.YUOj4g.89DN9.3zHxzs6nrPD3sHP.MN1t3kcmoihMGs.1
-
-auth_remote_ssh_user: calogero
-
-auth_sysadmin_group: admins
-auth_sysadmin_gid: 2000
-
-auth_lifesaver: yes
-auth_lifesaver_user: lifesaver
-auth_lifesaver_pass: $6$rounds=100000$m/M7lOATVbdrXnen$jyOdHypgKY.LV1Ob.OMxWoLMNS8w4rydAbDOtEGPFwZStEe2Qr4Pw3vpbcvJZ5G3h9GoWt2gbbZsLQYtOjiCZ.
-auth_lifesaver_uid: 3000
-auth_lifesaver_shell: /bin/rbash
-
-auth_sshd_port: 22
-auth_sshd_pass_auth: 'yes'
-
-### ssh keys
-auth_local_user: calogero-local
-auth_local_ssh_dir: /home/calogero-local/.ssh
-auth_local_conf_dir: "{{ auth_local_ssh_dir }}/.confs"
+# remove other ssh keys
+auth_remove_other_ssh_keys: false
