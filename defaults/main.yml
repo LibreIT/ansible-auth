@@ -1,5 +1,5 @@
 ---
-# disable root user (!!!)
+# disable root user (!)
 auth_disable_root: false
 
 # disable the creation of lifesaver user
